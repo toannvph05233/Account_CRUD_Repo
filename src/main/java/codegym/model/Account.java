@@ -1,18 +1,26 @@
 package codegym.model;
 
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.sql.Date;
+import java.util.ArrayList;
 
 @Entity
 public class Account {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
+    @Size(min = 8, message = "nhap ngan qua")
     private String userName;
 
     @Column(nullable = false)
+    @Pattern(regexp = "^[A-Za-z0-9]{8,}$", message = "> 8 kytu")
     private String passWord;
 
     private Date createDate;
@@ -58,4 +66,5 @@ public class Account {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
+
 }

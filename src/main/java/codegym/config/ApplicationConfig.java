@@ -2,12 +2,17 @@ package codegym.config;
 
 import codegym.service.AccountService;
 import codegym.service.IAccountService;
+import codegym.validate.ValidateUserName;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -35,9 +40,17 @@ import java.util.Properties;
 @ComponentScan("codegym.controller")
 @EnableJpaRepositories("codegym.repository")
 @EnableTransactionManagement
+@PropertySource("classpath:validation-message.properties")
 public class ApplicationConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
+
+//    @Value("${setUrl}")
+//    private String setUrl;
+//    @Value("${setUsername}")
+//    private String setUsername;
+//    @Value("${setPassword}")
+//    private String setPassword;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -69,7 +82,7 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter implements Applic
         return viewResolver;
     }
 
-//    Cấu hình để kết nối CSDL
+    //    Cấu hình để kết nối CSDL
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -79,7 +92,8 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter implements Applic
         dataSource.setPassword("12345678");
         return dataSource;
     }
-// cấu hình thằng chứa entity
+
+    // cấu hình thằng chứa entity
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
@@ -90,15 +104,17 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter implements Applic
         em.setJpaProperties(additionalProperties());
         return em;
     }
-// cấu hình để cho hibernate tự động tạo bảng cho mình.
+
+    // cấu hình để cho hibernate tự động tạo bảng cho mình.
     Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
         return properties;
     }
+
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
         return transactionManager;
@@ -111,8 +127,18 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter implements Applic
     }
 
     @Bean
-    public IAccountService iAccountService(){
+    public IAccountService iAccountService() {
         return new AccountService();
     }
+  @Bean
+    public ValidateUserName validateUserName() {
+        return new ValidateUserName();
+    }
 
+    @Bean
+    public MessageSource messageSource() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasenames("validation-message");
+        return messageSource;
+    }
 }
